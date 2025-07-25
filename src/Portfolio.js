@@ -43,53 +43,54 @@ const Portfolio = () => {
   const skills = {
     'Programming Languages': ['Python', 'Java'],
     'Data Science & Analytics': ['NumPy', 'Pandas', 'Matplotlib', 'Seaborn'],
-    'Machine Learning & Deep Learning': ['Scikit-learn', 'PyTorch', 'HuggingFace Transformers', 'QLoRA', 'RAG', 'LangChain'],
-    'Tools & Utilities': ['Jupyter', 'VSCode', 'FAISS'],
-    'Databases': ['MySQL', 'SQLite'],
-    'Web Frameworks / APIs': ['Streamlit', 'FastAPI'],
-    'Computer Vision': ['OpenCV']
+    'Web Frameworks / APIs': ['FastAPI', 'Streamlit'],
+    'Machine Learning & Deep Learning': ['Scikit-learn', 'PyTorch', 'HuggingFace', 'Transformers', 'QLoRA', 'RAG', 'LangChain', 'LangGraph'],
+    'Databases': ['MySQL', 'SQLite', 'DBMS Principles'],
+    'Tools & Utilities': ['Jupyter', 'VSCode', 'GitHub']
   };
 
   const projects = [
     {
+      title: "MedAssist AI",
+      subtitle: "An Agentic Medical Assistant with Feedback, Memory, and Secure User Profiling",
+      description: "Built an intelligent medical assistant using agentic LLM workflows (LangGraph) with secure JWT-authenticated user profiling, real-time symptom analysis, and personalized health history retrieval.",
+      technologies: ["Python", "LangGraph", "LangChain", "FastAPI", "Streamlit", "MongoDB", "GroqAPI"],
+      features: [
+        "Agentic LLM workflows using LangGraph with secure JWT authentication",
+        "Real-time symptom analysis with memory-enabled chat functionality",
+        "Personalized health history retrieval and risk flagging",
+        "Dynamic tool invocation for information grounding from PubMed, Wikipedia, and Tavily",
+        "Integrated feedback collection system"
+      ],
+      highlight: true,
+      githubUrl: "https://github.com/HemanthReddy-1408",
+      liveUrl: "#"
+    },
+    {
       title: "LegalEase GPT",
       subtitle: "Indian Law Conversational Agent",
-      description: "A domain-specific chatbot that makes Indian laws like IPC, CrPC, and Constitution easily understandable through natural language conversations.",
+      description: "Built an intelligent legal assistant using Retrieval-Augmented Generation (RAG) powered by a QLoRA-fine-tuned Falcon model trained on IPC, CrPC, and Constitution articles.",
       technologies: ["Python", "LangChain", "HuggingFace Transformers", "QLoRA", "FAISS", "Streamlit"],
       features: [
         "RAG-based approach with QLoRA-fine-tuned Falcon model",
-        "FAISS vector store for semantic retrieval",
-        "Conversational memory and source traceability",
-        "Metadata-rich legal document chunks"
+        "FAISS vector store with metadata-enriched chunks for fast, semantically accurate legal retrieval",
+        "Conversational memory and source traceability for multi-turn legal reasoning",
+        "Citation-backed responses with Streamlit-based UI for law students and legal professionals"
       ],
-      highlight: true,
       githubUrl: "https://github.com/HemanthReddy-1408/LegalEase",
       liveUrl: "#"
     },
     {
-      title: "Chat with Author",
-      subtitle: "RAG-Based Mahabharata Chatbot",
-      description: "Domain-specific chatbot trained on the Mahabharata corpus using Retrieval-Augmented Generation for interactive mythological Q&A.",
-      technologies: ["Python", "HuggingFace Transformers", "FAISS", "Streamlit"],
-      features: [
-        "Semantic chunk retrieval with FAISS",
-        "HuggingFace embeddings and generation",
-        "Interactive Streamlit interface",
-        "Mythological knowledge base"
-      ],
-      githubUrl: "https://github.com/HemanthReddy-1408/Mahabharata_chatbot",
-      liveUrl: "#"
-    },
-    {
       title: "Anomaly Transformer",
-      subtitle: "Time Series Anomaly Detection",
-      description: "Transformer-based model for detecting point anomalies in behavioral time-series data with 81.2% accuracy.",
+      subtitle: "Sequence Anomaly Detection Using Deep Learning",
+      description: "Implemented a deep learning model based on Transformer architecture to detect anomalies in time-series behavioral data with 81.2% accuracy using association discrepancy-based attention.",
       technologies: ["Python", "PyTorch", "Streamlit"],
       features: [
-        "Association Discrepancy methodology",
-        "Contextual sequence modeling",
-        "Real-time anomaly visualization",
-        "81.2% detection accuracy"
+        "Deep learning model based on Transformer architecture",
+        "Association discrepancy-based attention mechanism",
+        "Achieved 81.2% accuracy with custom loss functions",
+        "ML engineering practices with training loop isolation and reproducibility",
+        "Real-time threshold tuning and anomaly visualization with Streamlit frontend"
       ],
       githubUrl: "https://github.com/HemanthReddy-1408/Anomaly-Transformer",
       liveUrl: "#"
@@ -102,8 +103,7 @@ const Portfolio = () => {
       institution: "Neil Gogte Institute Of Technology",
       location: "Hyderabad, India",
       period: "11/2022 – present",
-      gpa: "8.03/10",
-      coursework: ["Data Structures and Algorithms", "AI/ML", "Operating Systems"]
+      gpa: "8.03/10"
     },
     {
       degree: "Intermediate",
@@ -235,10 +235,10 @@ const Portfolio = () => {
           </h1>
           
           <p className="text-xl sm:text-2xl md:text-3xl text-gray-600 mb-8 max-w-4xl mx-auto leading-relaxed px-4">
-            Final-year Computer Science student specializing in{' '}
-            <span className="text-blue-600 font-semibold hover:text-blue-700 transition-colors cursor-default">AI/ML</span>, 
-            <span className="text-indigo-600 font-semibold hover:text-indigo-700 transition-colors cursor-default"> Transformers</span>, and 
-            <span className="text-purple-600 font-semibold hover:text-purple-700 transition-colors cursor-default"> LLM fine-tuning</span>
+            Versatile AI/ML developer specializing in{' '}
+            <span className="text-blue-600 font-semibold hover:text-blue-700 transition-colors cursor-default">Transformers</span>, 
+            <span className="text-indigo-600 font-semibold hover:text-indigo-700 transition-colors cursor-default"> LLM fine-tuning</span>, and 
+            <span className="text-purple-600 font-semibold hover:text-purple-700 transition-colors cursor-default"> Agentic Systems</span>
           </p>
           
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6 px-4">
@@ -289,8 +289,9 @@ const Portfolio = () => {
                 <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12"></div>
                 <h3 className="text-3xl font-bold mb-6 relative z-10">Profile</h3>
                 <p className="text-lg leading-relaxed relative z-10">
-                  Final-year Computer Science student with a strong foundation in AI/ML, Transformers, and LLM fine-tuning. 
-                  Experienced in building real-world projects involving Retrieval-Augmented Generation (RAG) and Whisper-based speech processing.
+                  Versatile AI/ML developer with a strong foundation in Transformers, LLM fine-tuning (LoRA/QLoRA), and 
+                  Retrieval-Augmented Generation (RAG). Experienced in building real-world agentic systems using 
+                  LangChain, LangGraph, Groq API, and multi-step ReAct workflows.
                 </p>
                 <Star className="absolute top-4 right-4 text-white/40 animate-pulse" size={24} />
               </div>
@@ -305,7 +306,7 @@ const Portfolio = () => {
                   <h4 className="text-xl font-semibold text-gray-900">Technical Expertise</h4>
                 </div>
                 <p className="text-gray-600 leading-relaxed">
-                  Proficient in Python, PyTorch, and LangChain, with solid problem-solving skills backed by consistent DSA practice.
+                  Proficient in Python and PyTorch, with robust problem-solving skills grounded in consistent DSA practice.
                 </p>
               </div>
               
@@ -314,10 +315,10 @@ const Portfolio = () => {
                   <div className="p-2 bg-indigo-100 rounded-xl group-hover:bg-indigo-200 transition-colors duration-300">
                     <Wrench className="text-indigo-600" size={24} />
                   </div>
-                  <h4 className="text-xl font-semibold text-gray-900">Currently Learning</h4>
+                  <h4 className="text-xl font-semibold text-gray-900">Currently Expanding</h4>
                 </div>
                 <p className="text-gray-600 leading-relaxed">
-                  LangSmith and FastAPI to strengthen capabilities in LLMOps and backend deployment.
+                  Expertise in FastAPI, LLMOps, orchestration, memory management, and human-in-the-loop AI applications.
                 </p>
               </div>
               
@@ -326,10 +327,10 @@ const Portfolio = () => {
                   <div className="p-2 bg-purple-100 rounded-xl group-hover:bg-purple-200 transition-colors duration-300">
                     <Briefcase className="text-purple-600" size={24} />
                   </div>
-                  <h4 className="text-xl font-semibold text-gray-900">Career Goals</h4>
+                  <h4 className="text-xl font-semibold text-gray-900">Interests</h4>
                 </div>
                 <p className="text-gray-600 leading-relaxed">
-                  Eager to contribute to cutting-edge AI projects in a fast-paced, learning-focused environment.
+                  Music, Gaming, and Watching movies when not building AI applications.
                 </p>
               </div>
             </div>
@@ -493,21 +494,11 @@ const Portfolio = () => {
                     <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors duration-300">{edu.degree}</h3>
                     <h4 className="text-lg text-blue-600 font-semibold mb-2">{edu.institution}</h4>
                     <p className="text-gray-600 mb-2">{edu.location}</p>
-                    {edu.coursework && (
-                                            <div className="mt-3">
-                        <h5 className="text-gray-800 font-medium mb-1">Relevant Coursework:</h5>
-                        <ul className="list-disc list-inside space-y-1 text-gray-700">
-                          {edu.coursework.map((course, i) => (
-                            <li key={i} className="hover:text-blue-600 transition-colors duration-300">{course}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
                   </div>
                   <div className="flex flex-col justify-center md:items-end text-right">
                     <span className="text-sm text-gray-500">{edu.period}</span>
                     {edu.gpa && (
-                      <span className="text-sm font-semibold text-blue-600 mt-1">GPA: {edu.gpa}</span>
+                      <span className="text-sm font-semibold text-blue-600 mt-1">CGPA: {edu.gpa}</span>
                     )}
                     {edu.percentage && (
                       <span className="text-sm font-semibold text-blue-600 mt-1">Percentage: {edu.percentage}</span>
@@ -520,7 +511,7 @@ const Portfolio = () => {
         </div>
       </section>
 
-            {/* Contact Section */}
+      {/* Contact Section */}
       <section 
         id="contact" 
         ref={(el) => (sectionsRef.current.contact = el)}
@@ -536,12 +527,12 @@ const Portfolio = () => {
           </p>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             <a
-              href="mailto:hemanth901499@gmail.com"
+              href="mailto:hemanth984849@gmail.com"
               className="bg-white/10 backdrop-blur-md rounded-xl p-6 hover:bg-white/20 transition-all duration-300 group"
             >
               <Mail className="mx-auto mb-4 text-white group-hover:scale-110 transition-transform" size={32} />
               <h3 className="text-white font-semibold mb-2">Email</h3>
-              <p className="text-blue-100 text-sm">hemanth901499@gmail.com</p>
+              <p className="text-blue-100 text-sm">hemanth984849@gmail.com</p>
             </a>
             <a
               href="tel:+919014995824"
@@ -582,7 +573,7 @@ const Portfolio = () => {
             <span className="text-gray-500">•</span>
             <span className="text-indigo-400">Gaming</span>
             <span className="text-gray-500">•</span>
-            <span className="text-purple-400">Movies</span>
+            <span className="text-purple-400">Watching Movies</span>
           </div>
         </div>
       </footer>
