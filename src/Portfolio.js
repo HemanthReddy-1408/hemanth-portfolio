@@ -63,7 +63,7 @@ const Portfolio = () => {
         "Integrated feedback collection system"
       ],
       highlight: true,
-      githubUrl: "https://github.com/HemanthReddy-1408",
+      githubUrl: "https://github.com/HemanthReddy-1408/medassist-ai",
       liveUrl: "#"
     },
     {
