@@ -1,5 +1,319 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Github, Mail, Phone, MapPin, ExternalLink, Download, Menu, X, Code, Brain, Database, Wrench, GraduationCap, Briefcase, User, Home, FolderOpen, MessageSquare, ChevronDown, Star, Sparkles } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import {
+  Github, Linkedin, Mail, Phone, MapPin, Download, Menu, X,
+  Home, User, Briefcase, Code, FolderOpen, GraduationCap, MessageSquare,
+  ChevronDown, ArrowUpRight, Quote, TerminalSquare,
+} from 'lucide-react';
+
+/* -------------------------------------------------------------------- */
+/*  Data                                                                  */
+/* -------------------------------------------------------------------- */
+
+const NAV_SECTIONS = [
+  { id: 'home', label: 'Home', icon: Home },
+  { id: 'about', label: 'About', icon: User },
+  { id: 'experience', label: 'Experience', icon: Briefcase },
+  { id: 'skills', label: 'Skills', icon: Code },
+  { id: 'projects', label: 'Projects', icon: FolderOpen },
+  { id: 'education', label: 'Education', icon: GraduationCap },
+  { id: 'contact', label: 'Contact', icon: MessageSquare },
+];
+
+const ROLE_STRINGS = [
+  'agentic AI infrastructure',
+  'evaluation & reliability engineering',
+  'real-time voice AI',
+  'statistically rigorous evaluation',
+];
+
+const HERO_STATS = [
+  { value: '1,000+', label: 'production interviews powered' },
+  { value: '2,500+', label: 'production calls handled' },
+  { value: '3', label: 'open-source research platforms' },
+  { value: '800+', label: 'tests shipped across projects' },
+];
+
+const EXPERIENCE = {
+  role: 'AI Engineer',
+  company: 'AIRA HR — NR Consulting',
+  location: 'Hyderabad, India',
+  period: 'August 2025 — Present',
+  bullets: [
+    {
+      text: 'Joined as an Intern and converted to full-time AI Engineer after 11 months; now own architecture for the company’s AI Interview and AI Telephony platforms.',
+    },
+    {
+      text: 'Re-architected a Selenium-based browser media pipeline into native LiveKit, eliminating browser resource contention.',
+      metric: '1,000+ interviews',
+    },
+    {
+      text: 'Built a full-duplex streaming voice pipeline (Deepgram STT, LLM inference, Cartesia TTS, LiveKit transport) minimizing end-to-end conversational latency through continuous streaming execution.',
+    },
+    {
+      text: 'Designed concurrent interview execution using process isolation, Redis-backed orchestration, and a queue-driven, memory-aware video analysis pipeline for production-scale deployments.',
+    },
+    {
+      text: 'Delivered an AI telephony platform with deterministic workflow orchestration and retrieval-augmented conversational intelligence.',
+      metric: '2,500+ calls',
+    },
+  ],
+};
+
+const SKILLS = [
+  {
+    category: 'Languages',
+    items: ['Python', 'SQL', 'Java'],
+  },
+  {
+    category: 'AI / Machine Learning',
+    items: ['PyTorch', 'Transformers', 'Hugging Face', 'LangChain', 'LangGraph', 'RAG', 'Hybrid Retrieval (BM25 + Dense, RRF)', 'PEFT / LoRA / QLoRA'],
+  },
+  {
+    category: 'AI Evaluation & Reliability',
+    items: ['LLM-as-Judge Calibration', 'McNemar / Bootstrap / BH-FDR', 'Regression Gating', 'Red Teaming', 'Drift Detection'],
+  },
+  {
+    category: 'Agent Infrastructure',
+    items: ['Model Context Protocol (MCP)', 'Tool Governance & Policy Engines', 'Agent Runtimes', 'Trajectory Capture', 'Replay & Counterfactual Analysis'],
+  },
+  {
+    category: 'Backend & Distributed Systems',
+    items: ['FastAPI', 'AsyncIO', 'WebSockets', 'Redis', 'Multiprocessing', 'RBAC'],
+  },
+  {
+    category: 'Real-Time Voice AI',
+    items: ['LiveKit', 'WebRTC', 'Deepgram', 'Cartesia', 'Streaming AI'],
+  },
+  {
+    category: 'Databases',
+    items: ['PostgreSQL (RLS)', 'MySQL', 'SQLite', 'MongoDB', 'SQLAlchemy', 'FAISS'],
+  },
+  {
+    category: 'Observability & MLOps',
+    items: ['OpenTelemetry', 'MLflow', 'Prometheus', 'Grafana', 'Docker', 'GitHub Actions CI'],
+  },
+];
+
+const PROJECTS = [
+  {
+    id: 'aegis',
+    name: 'Aegis',
+    tagline: 'Agent Reliability & Evaluation Platform',
+    period: 'Sep 2026',
+    description:
+      'An open-source reliability laboratory for agentic AI: runs versioned agents against reproducible datasets, captures complete tool/MCP/RAG trajectories, and answers where an agent fails, why, and whether a change actually made it better or worse.',
+    bullets: [
+      'Engineered an agent runtime where the runtime — not the LLM — owns control flow: a pure, property-tested state machine, budgets enforced before every model call, and a policy gate authorizing each proposed action.',
+      'Built an MCP gateway as sole egress to untrusted tool servers, with operator-assigned risk classification and deny-by-default policy.',
+      'Implemented statistically rigorous evaluation — McNemar for paired outcomes, Benjamini–Hochberg FDR correction, Wilson intervals — yielding pass/fail/inconclusive verdicts instead of noise-sensitive point estimates.',
+      'Discovered and fixed a silent multi-tenant bypass in which Postgres superuser roles ignore row-level security entirely, adding a runtime guard that refuses to start on an RLS-exempt role.',
+    ],
+    quote:
+      "A refund made 74 days after a stated 30-day policy window was scored 1.00 by an LLM groundedness judge — perfectly faithful to what it said, with nothing to say about whether it should have said it. Only a deterministic check caught it.",
+    stats: [
+      { value: '~6,600', label: 'impl. lines' },
+      { value: '300+', label: 'tests' },
+      { value: '7', label: 'dependency contracts' },
+    ],
+    tech: ['Python', 'FastAPI', 'PostgreSQL', 'MCP', 'MLflow', 'OpenTelemetry'],
+    github: 'https://github.com/HemanthReddy-1408/Aegis',
+  },
+  {
+    id: 'medassist',
+    name: 'MedAssist X',
+    tagline: 'Serving-Time Admission Control for Clinical Answers',
+    period: 'Jul 2025 — Sep 2026',
+    description:
+      'A multi-agent clinical assistant paired with an in-band release gate that decides, per request and before any token is shown, whether an answer may reach the user — with no gold labels and no second chance, unlike an offline evaluation harness.',
+    bullets: [
+      'Designed a six-check verification cascade ordered cheapest-first, so an answer removed by check two never reaches the expensive checks behind it.',
+      'Implemented patient-relational safety checking that no groundedness or faithfulness metric can express — correctness held between the answer and the patient’s own medication record.',
+      'Engineered fail-closed semantics throughout: an unreachable judge, empty retrieval, or exhausted latency budget all resolve to ABSTAIN.',
+      'Shipped confidence calibration (ECE / Brier, risk–coverage curves), longitudinal patient memory across visits, and a red-team suite of 15 attacks across 10 classes.',
+    ],
+    quote:
+      'Arithmetic grounding catches a dosage error — 800 mg cited against a source that says 500 mg — in 0.3 ms, something LLM judges routinely wave through as consistent. Meanwhile 2.5 g and 2500 mg correctly match, because units are normalized first.',
+    stats: [
+      { value: '8,274', label: 'impl. lines' },
+      { value: '448', label: 'tests · 2.4s' },
+      { value: '15', label: 'red-team attacks' },
+    ],
+    tech: ['Python', 'FastAPI', 'BM25 + Dense Retrieval', 'RRF', 'Pydantic', 'NumPy'],
+    github: 'https://github.com/HemanthReddy-1408/medassist-ai',
+  },
+  {
+    id: 'anomaly-transformer',
+    name: 'Anomaly Transformer',
+    tagline: 'Reverse-Engineered Reimplementation & Statistical Evaluation',
+    period: 'Oct 2024 — Sep 2026',
+    description:
+      'Reverse-engineered Xu et al.’s ICLR 2022 Anomaly Transformer from a buggy single-file prototype into a correctness-audited reimplementation — a multi-layer encoder, a minimax training objective, and an evaluation layer that questions its own numbers.',
+    bullets: [
+      'Found and fixed 7 correctness bugs in the reference math and data pipeline, including a non-log-space KL divergence and an autograd-detaching loss reduction.',
+      'Built point-adjusted and PA%K-swept F1, ROC/PR-AUC, and moving-block bootstrap confidence intervals — three threshold strategies reported side by side instead of one flattering number.',
+      'Benchmarked against LSTM and vanilla Transformer autoencoders and three classical detectors across all 28 Server Machine Dataset machines with multi-seed ablations.',
+      'Reported an honest negative finding — a plain Transformer autoencoder of matched depth outperformed the paper’s own association-discrepancy mechanism at reduced training scale — rather than only results favorable to the model.',
+    ],
+    quote:
+      'Point-adjusted F1 hits 0.9985 on the exact predictions that score 0.095 unadjusted — a 10x swing from the evaluation convention alone, holding the model completely fixed.',
+    stats: [
+      { value: '68', label: 'tests' },
+      { value: '28', label: 'machines benchmarked' },
+      { value: '7', label: 'bugs fixed' },
+    ],
+    tech: ['Python', 'PyTorch', 'scikit-learn', 'Streamlit'],
+    github: 'https://github.com/HemanthReddy-1408/Anomaly-Transformer',
+  },
+];
+
+const EDUCATION = {
+  institution: 'Neil Gogte Institute Of Technology',
+  degree: 'B.E. in Computer Science and Engineering',
+  location: 'Hyderabad, India',
+  period: '2022 — 2026',
+  detail: 'CGPA: 8.07 / 10.0',
+};
+
+const CONTACT_LINKS = [
+  { icon: Mail, label: 'Email', value: 'hemanth984849@gmail.com', href: 'mailto:hemanth984849@gmail.com' },
+  { icon: Phone, label: 'Phone', value: '+91 90149 95824', href: 'tel:+919014995824' },
+  { icon: Linkedin, label: 'LinkedIn', value: 'hemanth-reddy-432237333', href: 'https://linkedin.com/in/hemanth-reddy-432237333/' },
+  { icon: Github, label: 'GitHub', value: 'HemanthReddy-1408', href: 'https://github.com/HemanthReddy-1408' },
+];
+
+/* -------------------------------------------------------------------- */
+/*  Small hooks & primitives                                              */
+/* -------------------------------------------------------------------- */
+
+/** Fades + slides an element up into place the first time it enters the viewport.
+ *  Triggers a little before the element is literally on screen (rootMargin) and
+ *  carries a time-based fallback, so content can never be stuck invisible if the
+ *  observer is unsupported, throttled, or simply never fires for this element. */
+function useReveal(threshold = 0) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return undefined;
+
+    if (typeof IntersectionObserver === 'undefined') {
+      setVisible(true);
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold, rootMargin: '0px 0px 150px 0px' }
+    );
+    observer.observe(node);
+
+    const fallback = setTimeout(() => setVisible(true), 2000);
+    return () => {
+      observer.disconnect();
+      clearTimeout(fallback);
+    };
+  }, [threshold]);
+
+  return [ref, visible];
+}
+
+function Reveal({ children, delay = 0, className = '' }) {
+  const [ref, visible] = useReveal();
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        opacity: visible ? undefined : 0,
+        animation: visible ? `fade-up 0.7s cubic-bezier(0.16,1,0.3,1) ${delay}ms forwards` : 'none',
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/** Cycles through a list of role strings with a typing/deleting effect. */
+function useTypewriter(words, { typeMs = 55, deleteMs = 30, holdMs = 1600, gapMs = 400 } = {}) {
+  const [text, setText] = useState('');
+  const [wordIndex, setWordIndex] = useState(0);
+  const [phase, setPhase] = useState('typing'); // typing | holding | deleting | gap
+
+  useEffect(() => {
+    const current = words[wordIndex % words.length];
+    let timeout;
+
+    if (phase === 'typing') {
+      if (text.length < current.length) {
+        timeout = setTimeout(() => setText(current.slice(0, text.length + 1)), typeMs);
+      } else {
+        timeout = setTimeout(() => setPhase('holding'), holdMs);
+      }
+    } else if (phase === 'holding') {
+      timeout = setTimeout(() => setPhase('deleting'), 10);
+    } else if (phase === 'deleting') {
+      if (text.length > 0) {
+        timeout = setTimeout(() => setText(current.slice(0, text.length - 1)), deleteMs);
+      } else {
+        timeout = setTimeout(() => setPhase('gap'), gapMs);
+      }
+    } else if (phase === 'gap') {
+      setWordIndex((i) => (i + 1) % words.length);
+      setPhase('typing');
+    }
+
+    return () => clearTimeout(timeout);
+  }, [text, phase, wordIndex, words, typeMs, deleteMs, holdMs, gapMs]);
+
+  return text;
+}
+
+function SectionKicker({ children }) {
+  return (
+    <p className="font-mono text-xs sm:text-sm uppercase tracking-[0.25em] text-cyan-400 mb-3">
+      {children}
+    </p>
+  );
+}
+
+function SectionHeading({ kicker, title, subtitle }) {
+  return (
+    <Reveal className="mb-14 max-w-3xl">
+      <SectionKicker>{kicker}</SectionKicker>
+      <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-semibold text-white tracking-tight">
+        {title}
+      </h2>
+      {subtitle && <p className="mt-4 text-slate-400 text-lg leading-relaxed">{subtitle}</p>}
+    </Reveal>
+  );
+}
+
+function StatChip({ value, label }) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
+      <div className="font-mono text-lg sm:text-xl font-semibold text-cyan-300">{value}</div>
+      <div className="text-xs text-slate-500 mt-0.5">{label}</div>
+    </div>
+  );
+}
+
+function TechTag({ children }) {
+  return (
+    <span className="font-mono text-xs px-2.5 py-1 rounded-md border border-white/10 bg-white/[0.03] text-slate-300 hover:border-cyan-400/40 hover:text-cyan-300 transition-colors">
+      {children}
+    </span>
+  );
+}
+
+/* -------------------------------------------------------------------- */
+/*  Main component                                                        */
+/* -------------------------------------------------------------------- */
 
 const Portfolio = () => {
   const [activeSection, setActiveSection] = useState('home');
@@ -7,573 +321,513 @@ const Portfolio = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const sectionsRef = useRef({});
-
-  const sections = ['home', 'about', 'skills', 'projects', 'education', 'contact'];
+  const roleText = useTypewriter(ROLE_STRINGS);
 
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = (scrollTop / docHeight) * 100;
-      
-      setIsScrolled(scrollTop > 50);
+      const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+
+      setIsScrolled(scrollTop > 40);
       setScrollProgress(progress);
 
-      // Find the current section based on scroll position
       let currentSection = 'home';
-      const offset = 100; // Offset for better section detection
-
-      sections.forEach((section) => {
-        const element = sectionsRef.current[section];
+      const offset = 120;
+      NAV_SECTIONS.forEach(({ id }) => {
+        const element = sectionsRef.current[id];
         if (element) {
           const rect = element.getBoundingClientRect();
-          if (rect.top <= offset && rect.bottom > offset) {
-            currentSection = section;
-          }
+          if (rect.top <= offset && rect.bottom > offset) currentSection = id;
         }
       });
-
       setActiveSection(currentSection);
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const skills = {
-    'Programming Languages': ['Python', 'Java'],
-    'Data Science & Analytics': ['NumPy', 'Pandas', 'Matplotlib', 'Seaborn'],
-    'Web Frameworks / APIs': ['FastAPI', 'Streamlit'],
-    'Machine Learning & Deep Learning': ['Scikit-learn', 'PyTorch', 'HuggingFace', 'Transformers', 'QLoRA', 'RAG', 'LangChain', 'LangGraph'],
-    'Databases': ['MySQL', 'SQLite', 'DBMS Principles'],
-    'Tools & Utilities': ['Jupyter', 'VSCode', 'GitHub']
-  };
-
-  const projects = [
-    {
-      title: "MedAssist AI",
-      subtitle: "An Agentic Medical Assistant with Feedback, Memory, and Secure User Profiling",
-      description: "Built an intelligent medical assistant using agentic LLM workflows (LangGraph) with secure JWT-authenticated user profiling, real-time symptom analysis, and personalized health history retrieval.",
-      technologies: ["Python", "LangGraph", "LangChain", "FastAPI", "Streamlit", "MongoDB", "GroqAPI"],
-      features: [
-        "Agentic LLM workflows using LangGraph with secure JWT authentication",
-        "Real-time symptom analysis with memory-enabled chat functionality",
-        "Personalized health history retrieval and risk flagging",
-        "Dynamic tool invocation for information grounding from PubMed, Wikipedia, and Tavily",
-        "Integrated feedback collection system"
-      ],
-      highlight: true,
-      githubUrl: "https://github.com/HemanthReddy-1408/medassist-ai",
-      liveUrl: "#"
-    },
-    {
-      title: "LegalEase GPT",
-      subtitle: "Indian Law Conversational Agent",
-      description: "Built an intelligent legal assistant using Retrieval-Augmented Generation (RAG) powered by a QLoRA-fine-tuned Falcon model trained on IPC, CrPC, and Constitution articles.",
-      technologies: ["Python", "LangChain", "HuggingFace Transformers", "QLoRA", "FAISS", "Streamlit"],
-      features: [
-        "RAG-based approach with QLoRA-fine-tuned Falcon model",
-        "FAISS vector store with metadata-enriched chunks for fast, semantically accurate legal retrieval",
-        "Conversational memory and source traceability for multi-turn legal reasoning",
-        "Citation-backed responses with Streamlit-based UI for law students and legal professionals"
-      ],
-      githubUrl: "https://github.com/HemanthReddy-1408/LegalEase",
-      liveUrl: "#"
-    },
-    {
-      title: "Anomaly Transformer",
-      subtitle: "Sequence Anomaly Detection Using Deep Learning",
-      description: "Implemented a deep learning model based on Transformer architecture to detect anomalies in time-series behavioral data with 81.2% accuracy using association discrepancy-based attention.",
-      technologies: ["Python", "PyTorch", "Streamlit"],
-      features: [
-        "Deep learning model based on Transformer architecture",
-        "Association discrepancy-based attention mechanism",
-        "Achieved 81.2% accuracy with custom loss functions",
-        "ML engineering practices with training loop isolation and reproducibility",
-        "Real-time threshold tuning and anomaly visualization with Streamlit frontend"
-      ],
-      githubUrl: "https://github.com/HemanthReddy-1408/Anomaly-Transformer",
-      liveUrl: "#"
-    }
-  ];
-
-  const education = [
-    {
-      degree: "Bachelor Of Engineering - Computer Science and Engineering",
-      institution: "Neil Gogte Institute Of Technology",
-      location: "Hyderabad, India",
-      period: "11/2022 – present",
-      gpa: "8.03/10"
-    },
-    {
-      degree: "Intermediate",
-      institution: "Narayana College",
-      location: "Hyderabad, India",
-      period: "2020 – 2022",
-      percentage: "92.0%"
-    },
-    {
-      degree: "All India Secondary School Certificate",
-      institution: "Sri Prakash Residential School",
-      location: "Miryalaguda, India",
-      period: "2019 – 2020",
-      percentage: "90.6%"
-    }
-  ];
-
-  const scrollToSection = (sectionId) => {
+  const scrollToSection = useCallback((sectionId) => {
     const element = sectionsRef.current[sectionId];
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
       setIsMenuOpen(false);
     }
-  };
+  }, []);
 
-  const NavItem = ({ id, icon: Icon, label }) => (
+  const NavItem = ({ id, label }) => (
     <button
       onClick={() => scrollToSection(id)}
-      className={`relative flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-500 group ${
-        activeSection === id
-          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25 scale-105'
-          : 'text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-blue-600'
+      className={`relative px-3.5 py-2 text-sm font-medium transition-colors duration-300 ${
+        activeSection === id ? 'text-white' : 'text-slate-400 hover:text-slate-200'
       }`}
     >
-      <Icon size={18} className={`transition-all duration-300 ${activeSection === id ? 'animate-pulse' : 'group-hover:scale-110'}`} />
-      <span className="font-medium">{label}</span>
-      {activeSection === id && (
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl opacity-20 animate-pulse"></div>
-      )}
+      {label}
+      <span
+        className={`absolute left-3.5 right-3.5 -bottom-[1px] h-px bg-gradient-to-r from-cyan-400 to-violet-400 origin-left transition-transform duration-300 ${
+          activeSection === id ? 'scale-x-100' : 'scale-x-0'
+        }`}
+      />
     </button>
   );
 
-  const FloatingElements = () => (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-      <div className="absolute top-20 left-10 w-64 h-64 bg-gradient-to-br from-blue-400/10 to-indigo-400/10 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute top-40 right-20 w-96 h-96 bg-gradient-to-br from-purple-400/10 to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-      <div className="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-br from-cyan-400/10 to-blue-400/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
-    </div>
-  );
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-x-hidden">
-      <FloatingElements />
-      
-      {/* Progress Bar */}
-      <div className="fixed top-0 left-0 w-full h-1 bg-gray-200 z-50">
-        <div 
-          className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 transition-all duration-300"
+    <div className="min-h-screen bg-slate-950 text-slate-100 relative overflow-x-hidden font-sans selection:bg-cyan-500/20">
+      {/* Ambient background */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute inset-0 bg-grid-slate [background-size:44px_44px] [mask-image:radial-gradient(ellipse_80%_60%_at_50%_0%,#000_10%,transparent_75%)]" />
+        <div className="absolute top-[-10%] left-[-10%] w-[36rem] h-[36rem] bg-cyan-500/10 rounded-full blur-[120px] animate-pulse-slow" />
+        <div className="absolute top-[20%] right-[-15%] w-[40rem] h-[40rem] bg-violet-500/10 rounded-full blur-[130px] animate-pulse-slow" />
+      </div>
+
+      {/* Scroll progress bar */}
+      <div className="fixed top-0 left-0 w-full h-[2px] bg-white/5 z-[60]">
+        <div
+          className="h-full bg-gradient-to-r from-cyan-400 to-violet-400"
           style={{ width: `${scrollProgress}%` }}
-        ></div>
+        />
       </div>
 
       {/* Navigation */}
-      <nav className={`fixed top-0 w-full z-40 transition-all duration-500 ${
-        isScrolled ? 'bg-white/90 backdrop-blur-xl shadow-2xl shadow-blue-500/10' : 'bg-transparent'
-      }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav
+        className={`fixed top-0 w-full z-50 transition-all duration-500 ${
+          isScrolled || isMenuOpen ? 'bg-slate-950/95 backdrop-blur-xl border-b border-white/10' : 'bg-transparent'
+        }`}
+      >
+        <div className="max-w-6xl mx-auto px-5 sm:px-8">
           <div className="flex justify-between items-center py-4">
-            <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent animate-pulse">
-              Hemanth Reddy
-            </div>
-            
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex space-x-2">
-              <NavItem id="home" icon={Home} label="Home" />
-              <NavItem id="about" icon={User} label="About" />
-              <NavItem id="skills" icon={Code} label="Skills" />
-              <NavItem id="projects" icon={FolderOpen} label="Projects" />
-              <NavItem id="education" icon={GraduationCap} label="Education" />
-              <NavItem id="contact" icon={MessageSquare} label="Contact" />
+            <button
+              onClick={() => scrollToSection('home')}
+              className="font-display text-lg font-semibold text-white flex items-center gap-2"
+            >
+              <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-violet-500 flex items-center justify-center text-slate-950 font-mono text-sm font-bold">
+                H
+              </span>
+              hemanth<span className="text-cyan-400">.</span>
+            </button>
+
+            <div className="hidden md:flex items-center gap-1">
+              {NAV_SECTIONS.map((s) => (
+                <NavItem key={s.id} id={s.id} label={s.label} />
+              ))}
+              <a
+                href="/resume.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-3 flex items-center gap-1.5 text-sm font-medium px-4 py-2 rounded-lg bg-white text-slate-950 hover:bg-cyan-300 transition-colors"
+              >
+                <Download size={15} /> Resume
+              </a>
             </div>
 
-            {/* Mobile menu button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 rounded-xl hover:bg-blue-50 transition-all duration-300 transform hover:scale-110"
+              className="md:hidden p-2 rounded-lg hover:bg-white/5 text-slate-200"
+              aria-label="Toggle menu"
             >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
           </div>
 
-          {/* Mobile Navigation */}
           {isMenuOpen && (
-            <div className="md:hidden py-4 border-t border-gray-200 bg-white/95 backdrop-blur-xl rounded-b-2xl">
-              <div className="flex flex-col space-y-2">
-                <NavItem id="home" icon={Home} label="Home" />
-                <NavItem id="about" icon={User} label="About" />
-                <NavItem id="skills" icon={Code} label="Skills" />
-                <NavItem id="projects" icon={FolderOpen} label="Projects" />
-                <NavItem id="education" icon={GraduationCap} label="Education" />
-                <NavItem id="contact" icon={MessageSquare} label="Contact" />
+            <div className="md:hidden pb-5 border-t border-white/10 pt-4">
+              <div className="flex flex-col gap-1">
+                {NAV_SECTIONS.map((s) => (
+                  <button
+                    key={s.id}
+                    onClick={() => scrollToSection(s.id)}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors ${
+                      activeSection === s.id ? 'bg-white/10 text-white' : 'text-slate-400'
+                    }`}
+                  >
+                    <s.icon size={17} />
+                    <span className="font-medium">{s.label}</span>
+                  </button>
+                ))}
+                <a
+                  href="/resume.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 px-3 py-2.5 mt-1 rounded-lg bg-white text-slate-950 font-medium"
+                >
+                  <Download size={17} /> Download Resume
+                </a>
               </div>
             </div>
           )}
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section 
-        id="home" 
+      {/* Hero */}
+      <section
+        id="home"
         ref={(el) => (sectionsRef.current.home = el)}
-        className="min-h-screen flex items-center justify-center relative pt-20 pb-12 px-4 sm:px-6 lg:px-8"
+        className="min-h-screen flex items-center relative pt-32 pb-20 px-5 sm:px-8"
       >
-        <div className="max-w-7xl mx-auto text-center relative z-10">
-          <div className="mb-8 relative">
-            <div className="w-32 h-32 md:w-40 md:h-40 mx-auto bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl md:text-5xl font-bold shadow-2xl shadow-blue-500/25 relative overflow-hidden group">
-              <span className="relative z-10">HR</span>
-              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <Sparkles className="absolute top-2 right-2 text-white/60 animate-pulse" size={16} />
-            </div>
+        <div className="max-w-6xl mx-auto w-full relative z-10">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-4 py-1.5 mb-8 font-mono text-xs text-slate-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            Open to Applied AI / ML Engineer roles
           </div>
-          
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 px-4 relative">
-            <span className="inline-block hover:scale-105 transition-transform duration-300">Hemanth</span>{' '}
-            <span className="inline-block hover:scale-105 transition-transform duration-300 delay-100">Reddy</span>{' '}
-            <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent inline-block hover:scale-105 transition-transform duration-300 delay-200">
+
+          <h1 className="font-display text-4xl sm:text-6xl md:text-7xl font-semibold text-white tracking-tight leading-[1.05]">
+            Hemanth Reddy
+            <br />
+            <span className="bg-gradient-to-r from-cyan-300 via-cyan-400 to-violet-400 bg-clip-text text-transparent">
               Nalabolu
             </span>
           </h1>
-          
-          <p className="text-xl sm:text-2xl md:text-3xl text-gray-600 mb-8 max-w-4xl mx-auto leading-relaxed px-4">
-            Versatile AI/ML developer specializing in{' '}
-            <span className="text-blue-600 font-semibold hover:text-blue-700 transition-colors cursor-default">Transformers</span>, 
-            <span className="text-indigo-600 font-semibold hover:text-indigo-700 transition-colors cursor-default"> LLM fine-tuning</span>, and 
-            <span className="text-purple-600 font-semibold hover:text-purple-700 transition-colors cursor-default"> Agentic Systems</span>
+
+          <div className="mt-7 h-8 flex items-center font-mono text-lg sm:text-xl text-slate-300">
+            <span className="text-slate-600 mr-2">$</span>
+            <span>{roleText}</span>
+            <span className="w-2 h-5 bg-cyan-400 ml-1 animate-blink" />
+          </div>
+
+          <p className="mt-6 max-w-2xl text-slate-400 text-base sm:text-lg leading-relaxed">
+            Applied AI Systems Engineer building production voice-AI and interview
+            platforms in industry, and an open-source reliability lab in the
+            open — turning statistical measurement rigor into shipped engineering
+            decisions rather than a single flattering number.
           </p>
-          
-          <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6 px-4">
+
+          <div className="mt-9 flex flex-wrap gap-4">
             <button
               onClick={() => scrollToSection('projects')}
-              className="group px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl font-semibold hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-300 shadow-xl shadow-blue-500/25 relative overflow-hidden"
+              className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-slate-950 font-semibold hover:bg-cyan-300 transition-colors"
             >
-              <span className="relative z-10 flex items-center justify-center space-x-2">
-                <span>View My Work</span>
-                <FolderOpen size={20} className="group-hover:rotate-12 transition-transform duration-300" />
-              </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              View Projects
+              <ArrowUpRight size={18} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </button>
             <button
               onClick={() => scrollToSection('contact')}
-              className="group px-8 py-4 border-2 border-blue-600 text-blue-600 rounded-2xl font-semibold hover:bg-blue-600 hover:text-white transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 relative overflow-hidden"
+              className="flex items-center gap-2 px-6 py-3 rounded-xl border border-white/15 text-slate-200 font-semibold hover:border-cyan-400/50 hover:text-cyan-300 transition-colors"
             >
-              <span className="relative z-10 flex items-center justify-center space-x-2">
-                <span>Get In Touch</span>
-                <MessageSquare size={20} className="group-hover:rotate-12 transition-transform duration-300" />
-              </span>
+              Get in Touch
             </button>
           </div>
 
-          {/* Scroll indicator */}
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-            <ChevronDown className="text-gray-400" size={32} />
+          <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl">
+            {HERO_STATS.map((s) => (
+              <div key={s.label}>
+                <div className="font-mono text-2xl sm:text-3xl font-semibold text-white">{s.value}</div>
+                <div className="text-xs sm:text-sm text-slate-500 mt-1 leading-snug">{s.label}</div>
+              </div>
+            ))}
           </div>
         </div>
+
+        <button
+          onClick={() => scrollToSection('about')}
+          className="hidden sm:flex absolute bottom-8 left-1/2 -translate-x-1/2 flex-col items-center gap-2 text-slate-600 hover:text-slate-400 transition-colors"
+          aria-label="Scroll to about"
+        >
+          <span className="font-mono text-[10px] uppercase tracking-widest">Scroll</span>
+          <ChevronDown className="animate-bounce" size={18} />
+        </button>
       </section>
 
-      {/* About Section */}
-      <section 
-        id="about" 
+      {/* About */}
+      <section
+        id="about"
         ref={(el) => (sectionsRef.current.about = el)}
-        className="py-20 px-4 sm:px-6 lg:px-8 bg-white/60 backdrop-blur-sm relative"
+        className="py-24 px-5 sm:px-8 relative border-t border-white/5"
       >
-        <div className="max-w-7xl mx-auto relative z-10">
-          <h2 className="text-5xl font-bold text-center text-gray-900 mb-16 relative">
-            About Me
-            <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full"></div>
-          </h2>
-          
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="order-2 md:order-1">
-              <div className="bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 rounded-3xl p-8 text-white shadow-2xl shadow-blue-500/25 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12"></div>
-                <h3 className="text-3xl font-bold mb-6 relative z-10">Profile</h3>
-                <p className="text-lg leading-relaxed relative z-10">
-                  Versatile AI/ML developer with a strong foundation in Transformers, LLM fine-tuning (LoRA/QLoRA), and 
-                  Retrieval-Augmented Generation (RAG). Experienced in building real-world agentic systems using 
-                  LangChain, LangGraph, Groq API, and multi-step ReAct workflows.
+        <div className="max-w-6xl mx-auto relative z-10">
+          <SectionHeading kicker="01 · About" title="Reliability is a design decision, not an afterthought." />
+
+          <div className="grid lg:grid-cols-5 gap-10">
+            <Reveal className="lg:col-span-3">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-8 h-full">
+                <TerminalSquare className="text-cyan-400 mb-5" size={26} />
+                <p className="text-slate-300 text-lg leading-relaxed">
+                  I specialize in agentic AI infrastructure, evaluation, and
+                  reliability engineering — architecting production platforms for
+                  real-time interview orchestration and intelligent telephony,
+                  and building an open-source reliability laboratory that treats
+                  agent evaluation as a statistics problem, not a vibe check.
                 </p>
-                <Star className="absolute top-4 right-4 text-white/40 animate-pulse" size={24} />
+                <p className="mt-5 text-slate-400 leading-relaxed">
+                  That means the same instincts apply whether I'm cutting
+                  conversational latency in a voice pipeline or auditing a
+                  research paper's math before trusting its numbers: measure it
+                  properly, assume your first implementation has a bug worth
+                  finding, and report what you actually found — including when
+                  it isn't flattering.
+                </p>
               </div>
-            </div>
-            
-            <div className="space-y-6 order-1 md:order-2">
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20 hover:shadow-2xl transition-all duration-300 group">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="p-2 bg-blue-100 rounded-xl group-hover:bg-blue-200 transition-colors duration-300">
-                    <Brain className="text-blue-600" size={24} />
+            </Reveal>
+
+            <div className="lg:col-span-2 flex flex-col gap-5">
+              {[
+                {
+                  title: 'Production systems',
+                  body: 'Low-latency voice AI, concurrent and distributed backend design, and layered architecture with enforced dependency contracts.',
+                },
+                {
+                  title: 'Reliability research',
+                  body: 'Statistical regression testing, MCP tool governance, adversarial red-teaming, and turning measurement rigor into engineering decisions.',
+                },
+                {
+                  title: 'Outside of work',
+                  body: 'Music, gaming, and watching movies when not building AI systems.',
+                },
+              ].map((card, i) => (
+                <Reveal key={card.title} delay={i * 100}>
+                  <div className="rounded-xl border border-white/10 bg-white/[0.02] p-5 border-l-2 border-l-cyan-400/60 hover:bg-white/[0.04] transition-colors">
+                    <h4 className="font-display font-semibold text-white mb-1.5">{card.title}</h4>
+                    <p className="text-sm text-slate-400 leading-relaxed">{card.body}</p>
                   </div>
-                  <h4 className="text-xl font-semibold text-gray-900">Technical Expertise</h4>
-                </div>
-                <p className="text-gray-600 leading-relaxed">
-                  Proficient in Python and PyTorch, with robust problem-solving skills grounded in consistent DSA practice.
-                </p>
-              </div>
-              
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20 hover:shadow-2xl transition-all duration-300 group">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="p-2 bg-indigo-100 rounded-xl group-hover:bg-indigo-200 transition-colors duration-300">
-                    <Wrench className="text-indigo-600" size={24} />
-                  </div>
-                  <h4 className="text-xl font-semibold text-gray-900">Currently Expanding</h4>
-                </div>
-                <p className="text-gray-600 leading-relaxed">
-                  Expertise in FastAPI, LLMOps, orchestration, memory management, and human-in-the-loop AI applications.
-                </p>
-              </div>
-              
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20 hover:shadow-2xl transition-all duration-300 group">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="p-2 bg-purple-100 rounded-xl group-hover:bg-purple-200 transition-colors duration-300">
-                    <Briefcase className="text-purple-600" size={24} />
-                  </div>
-                  <h4 className="text-xl font-semibold text-gray-900">Interests</h4>
-                </div>
-                <p className="text-gray-600 leading-relaxed">
-                  Music, Gaming, and Watching movies when not building AI applications.
-                </p>
-              </div>
+                </Reveal>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Skills Section */}
-      <section 
-        id="skills" 
-        ref={(el) => (sectionsRef.current.skills = el)}
-        className="py-20 px-4 sm:px-6 lg:px-8 relative"
+      {/* Experience */}
+      <section
+        id="experience"
+        ref={(el) => (sectionsRef.current.experience = el)}
+        className="py-24 px-5 sm:px-8 relative border-t border-white/5"
       >
-        <div className="max-w-7xl mx-auto relative z-10">
-          <h2 className="text-5xl font-bold text-center text-gray-900 mb-16 relative">
-            Technical Skills
-            <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full"></div>
-          </h2>
-          
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {Object.entries(skills).map(([category, skillList], index) => (
-              <div 
-                key={category} 
-                className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20 hover:shadow-2xl transition-all duration-500 group hover:scale-105"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center group-hover:text-blue-600 transition-colors duration-300">
-                  <div className="p-2 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl mr-3 group-hover:from-blue-200 group-hover:to-indigo-200 transition-all duration-300">
-                    {category === 'Programming Languages' && <Code className="text-blue-600" size={18} />}
-                    {category === 'Machine Learning & Deep Learning' && <Brain className="text-indigo-600" size={18} />}
-                    {category === 'Databases' && <Database className="text-purple-600" size={18} />}
-                    {!['Programming Languages', 'Machine Learning & Deep Learning', 'Databases'].includes(category) && <Wrench className="text-green-600" size={18} />}
-                  </div>
-                  <span className="leading-tight">{category}</span>
-                </h3>
-                <div className="space-y-3">
-                  {skillList.map((skill, skillIndex) => (
-                    <div key={skill} className="flex items-center group/item hover:translate-x-2 transition-transform duration-300">
-                      <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full mr-3 group-hover/item:scale-125 transition-transform duration-300"></div>
-                      <span className="text-gray-700 group-hover/item:text-blue-600 transition-colors duration-300">{skill}</span>
-                    </div>
-                  ))}
+        <div className="max-w-6xl mx-auto relative z-10">
+          <SectionHeading kicker="02 · Experience" title="Industry experience" />
+
+          <Reveal>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-8 sm:p-10">
+              <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2 mb-8 pb-8 border-b border-white/10">
+                <div>
+                  <h3 className="font-display text-2xl font-semibold text-white">{EXPERIENCE.role}</h3>
+                  <p className="text-cyan-400 font-medium mt-1">{EXPERIENCE.company}</p>
+                </div>
+                <div className="text-left sm:text-right">
+                  <p className="font-mono text-sm text-slate-400">{EXPERIENCE.period}</p>
+                  <p className="text-sm text-slate-500 flex items-center gap-1 sm:justify-end mt-1">
+                    <MapPin size={13} /> {EXPERIENCE.location}
+                  </p>
                 </div>
               </div>
+
+              <ul className="space-y-5">
+                {EXPERIENCE.bullets.map((b, i) => (
+                  <li key={i} className="flex gap-4">
+                    <span className="mt-2 w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0" />
+                    <p className="text-slate-300 leading-relaxed">
+                      {b.text}
+                      {b.metric && (
+                        <span className="ml-2 inline-block font-mono text-xs px-2 py-0.5 rounded-md bg-cyan-400/10 text-cyan-300 border border-cyan-400/20 align-middle">
+                          {b.metric}
+                        </span>
+                      )}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* Skills */}
+      <section
+        id="skills"
+        ref={(el) => (sectionsRef.current.skills = el)}
+        className="py-24 px-5 sm:px-8 relative border-t border-white/5"
+      >
+        <div className="max-w-6xl mx-auto relative z-10">
+          <SectionHeading kicker="03 · Skills" title="Technical toolbox" />
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {SKILLS.map((group, i) => (
+              <Reveal key={group.category} delay={(i % 4) * 80}>
+                <div className="rounded-xl border border-white/10 bg-white/[0.02] p-5 h-full hover:border-cyan-400/30 transition-colors">
+                  <h4 className="font-mono text-xs uppercase tracking-wider text-cyan-400 mb-4">
+                    {group.category}
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {group.items.map((item) => (
+                      <span
+                        key={item}
+                        className="text-sm text-slate-300 bg-white/[0.04] border border-white/5 rounded-md px-2.5 py-1"
+                      >
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Projects Section */}
-      <section 
-        id="projects" 
+      {/* Projects */}
+      <section
+        id="projects"
         ref={(el) => (sectionsRef.current.projects = el)}
-        className="py-20 px-4 sm:px-6 lg:px-8 bg-white/60 backdrop-blur-sm relative"
+        className="py-24 px-5 sm:px-8 relative border-t border-white/5"
       >
-        <div className="max-w-7xl mx-auto relative z-10">
-          <h2 className="text-5xl font-bold text-center text-gray-900 mb-16 relative">
-            Featured Projects
-            <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full"></div>
-          </h2>
-          
-          <div className="space-y-12">
-            {projects.map((project, index) => (
-              <div key={project.title} className={`bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/30 overflow-hidden hover:shadow-3xl transition-all duration-500 group ${
-                project.highlight ? 'ring-2 ring-blue-500/50 shadow-blue-500/20' : ''
-              }`}>
-                {project.highlight && (
-                  <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white px-6 py-3 relative overflow-hidden">
-                    <div className="flex items-center space-x-2">
-                      <Star className="animate-spin" size={20} />
-                      <span className="text-sm font-semibold">Featured Project</span>
-                    </div>
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
-                  </div>
-                )}
-                
-                <div className="p-8">
-                  <div className="grid lg:grid-cols-2 gap-8">
-                    <div className="space-y-6">
+        <div className="max-w-6xl mx-auto relative z-10">
+          <SectionHeading
+            kicker="04 · Projects"
+            title="Selected projects"
+            subtitle="Open-source systems built to be audited, not just demoed — each one shipped with real tests and a documented account of what broke along the way."
+          />
+
+          <div className="space-y-8">
+            {PROJECTS.map((project, idx) => (
+              <Reveal key={project.id} delay={idx * 90}>
+                <article className="rounded-2xl border border-white/10 bg-white/[0.02] overflow-hidden hover:border-white/20 transition-colors group">
+                  <div className="p-7 sm:p-9">
+                    <div className="flex flex-wrap items-start justify-between gap-4 mb-5">
                       <div>
-                        <h3 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-300">{project.title}</h3>
-                        <h4 className="text-lg text-blue-600 font-semibold mb-4">{project.subtitle}</h4>
-                        <p className="text-gray-600 mb-6 leading-relaxed">{project.description}</p>
+                        <div className="flex items-baseline gap-3 flex-wrap">
+                          <h3 className="font-display text-2xl font-semibold text-white group-hover:text-cyan-300 transition-colors">
+                            {project.name}
+                          </h3>
+                          <span className="font-mono text-xs text-slate-500">{project.period}</span>
+                        </div>
+                        <p className="text-violet-300 font-medium mt-1">{project.tagline}</p>
                       </div>
-                      
-                      <div className="flex flex-wrap gap-2">
-                        {project.technologies.map((tech, techIndex) => (
-                          <span 
-                            key={tech} 
-                            className="px-3 py-1 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 rounded-full text-sm font-medium border border-blue-200 hover:from-blue-100 hover:to-indigo-100 transition-all duration-300 cursor-default"
-                            style={{ animationDelay: `${techIndex * 50}ms` }}
-                          >
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
-                      
-                      <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                        <a
-                          href={project.githubUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="group/btn flex items-center justify-center space-x-2 px-6 py-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-                        >
-                          <Github size={18} className="group-hover/btn:rotate-12 transition-transform duration-300" />
-                          <span>View Code</span>
-                        </a>
-                        {project.liveUrl !== "#" && (
-                          <a
-                            href={project.liveUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group/btn flex items-center justify-center space-x-2 px-6 py-3 border-2 border-blue-600 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all duration-300 transform hover:scale-105"
-                          >
-                            <ExternalLink size={18} className="group-hover/btn:rotate-12 transition-transform duration-300" />
-                            <span>Live Demo</span>
-                          </a>
-                        )}
-                      </div>
+                      <a
+                        href={project.github}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-slate-200 hover:bg-white hover:text-slate-950 transition-colors text-sm font-medium shrink-0"
+                      >
+                        <Github size={16} /> Source
+                      </a>
                     </div>
-                    
-                    <div className="space-y-4">
-                      <h5 className="text-lg font-semibold text-gray-900 flex items-center">
-                        <Sparkles className="mr-2 text-blue-600" size={20} />
-                        Key Features
-                      </h5>
-                      <ul className="space-y-3">
-                        {project.features.map((feature, featureIndex) => (
-                          <li key={featureIndex} className="flex items-start group/feature hover:translate-x-2 transition-transform duration-300">
-                            <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full mr-3 mt-2 group-hover/feature:scale-125 transition-transform duration-300"></div>
-                            <span className="text-gray-700 leading-relaxed group-hover/feature:text-blue-600 transition-colors duration-300">{feature}</span>
+
+                    <p className="text-slate-400 leading-relaxed mb-6 max-w-3xl">{project.description}</p>
+
+                    <div className="grid md:grid-cols-5 gap-8 mb-6">
+                      <ul className="md:col-span-3 space-y-3">
+                        {project.bullets.map((b, i) => (
+                          <li key={i} className="flex gap-3 text-sm text-slate-300 leading-relaxed">
+                            <span className="mt-1.5 w-1 h-1 rounded-full bg-slate-600 shrink-0" />
+                            {b}
                           </li>
                         ))}
                       </ul>
+
+                      <div className="md:col-span-2 flex flex-col gap-4">
+                        <div className="relative rounded-xl border border-cyan-400/20 bg-cyan-400/[0.04] p-4">
+                          <Quote className="absolute -top-2.5 -left-2.5 text-cyan-400 bg-slate-950 rounded-full p-1" size={22} />
+                          <p className="text-sm text-slate-300 italic leading-relaxed">{project.quote}</p>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2">
+                          {project.stats.map((s) => (
+                            <StatChip key={s.label} value={s.value} label={s.label} />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 pt-5 border-t border-white/5">
+                      {project.tech.map((t) => (
+                        <TechTag key={t}>{t}</TechTag>
+                      ))}
                     </div>
                   </div>
-                </div>
-              </div>
+                </article>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Education Section */}
-      <section 
-        id="education" 
+      {/* Education */}
+      <section
+        id="education"
         ref={(el) => (sectionsRef.current.education = el)}
-        className="py-20 px-4 sm:px-6 lg:px-8 relative"
+        className="py-24 px-5 sm:px-8 relative border-t border-white/5"
       >
-        <div className="max-w-7xl mx-auto relative z-10">
-          <h2 className="text-5xl font-bold text-center text-gray-900 mb-16 relative">
-            Education
-            <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full"></div>
-          </h2>
-          
-          <div className="space-y-8">
-            {education.map((edu, index) => (
-              <div key={index} className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/30 hover:shadow-2xl transition-all duration-500 group hover:scale-[1.02]">
-                <div className="grid md:grid-cols-3 gap-6">
-                  <div className="md:col-span-2">
-                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors duration-300">{edu.degree}</h3>
-                    <h4 className="text-lg text-blue-600 font-semibold mb-2">{edu.institution}</h4>
-                    <p className="text-gray-600 mb-2">{edu.location}</p>
-                  </div>
-                  <div className="flex flex-col justify-center md:items-end text-right">
-                    <span className="text-sm text-gray-500">{edu.period}</span>
-                    {edu.gpa && (
-                      <span className="text-sm font-semibold text-blue-600 mt-1">CGPA: {edu.gpa}</span>
-                    )}
-                    {edu.percentage && (
-                      <span className="text-sm font-semibold text-blue-600 mt-1">Percentage: {edu.percentage}</span>
-                    )}
-                  </div>
+        <div className="max-w-6xl mx-auto relative z-10">
+          <SectionHeading kicker="05 · Education" title="Education" />
+
+          <Reveal>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-400/20 to-violet-400/20 border border-white/10 flex items-center justify-center shrink-0">
+                  <GraduationCap className="text-cyan-300" size={22} />
+                </div>
+                <div>
+                  <h3 className="font-display text-lg font-semibold text-white">{EDUCATION.institution}</h3>
+                  <p className="text-slate-400 text-sm mt-0.5">{EDUCATION.degree}</p>
                 </div>
               </div>
-            ))}
-          </div>
+              <div className="text-left sm:text-right shrink-0">
+                <p className="font-mono text-sm text-slate-400">{EDUCATION.period}</p>
+                <p className="text-sm text-cyan-300 font-medium mt-1">{EDUCATION.detail}</p>
+              </div>
+            </div>
+          </Reveal>
         </div>
       </section>
 
-      {/* Contact Section */}
-      <section 
-        id="contact" 
+      {/* Contact */}
+      <section
+        id="contact"
         ref={(el) => (sectionsRef.current.contact = el)}
-        className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-600 to-indigo-700"
+        className="py-24 px-5 sm:px-8 relative border-t border-white/5"
       >
-        <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-white mb-8 relative">
-            Let's Connect
-            <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-24 h-1 bg-white/30 rounded-full"></div>
-          </h2>
-          <p className="text-xl text-blue-100 mb-12 max-w-2xl mx-auto leading-relaxed">
-            I'm always excited to discuss new opportunities, innovative projects, or just chat about AI and technology.
-          </p>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <a
-              href="mailto:hemanth984849@gmail.com"
-              className="bg-white/10 backdrop-blur-md rounded-xl p-6 hover:bg-white/20 transition-all duration-300 group"
-            >
-              <Mail className="mx-auto mb-4 text-white group-hover:scale-110 transition-transform" size={32} />
-              <h3 className="text-white font-semibold mb-2">Email</h3>
-              <p className="text-blue-100 text-sm">hemanth984849@gmail.com</p>
-            </a>
-            <a
-              href="tel:+919014995824"
-              className="bg-white/10 backdrop-blur-md rounded-xl p-6 hover:bg-white/20 transition-all duration-300 group"
-            >
-              <Phone className="mx-auto mb-4 text-white group-hover:scale-110 transition-transform" size={32} />
-              <h3 className="text-white font-semibold mb-2">Phone</h3>
-              <p className="text-blue-100 text-sm">+91 9014995824</p>
-            </a>
-            <a
-              href="https://github.com/HemanthReddy-1408"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white/10 backdrop-blur-md rounded-xl p-6 hover:bg-white/20 transition-all duration-300 group"
-            >
-              <Github className="mx-auto mb-4 text-white group-hover:scale-110 transition-transform" size={32} />
-              <h3 className="text-white font-semibold mb-2">GitHub</h3>
-              <p className="text-blue-100 text-sm">HemanthReddy-1408</p>
-            </a>
-            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6">
-              <MapPin className="mx-auto mb-4 text-white" size={32} />
-              <h3 className="text-white font-semibold mb-2">Location</h3>
-              <p className="text-blue-100 text-sm">Nereducherla, Telangana</p>
-            </div>
+        <div className="max-w-6xl mx-auto relative z-10 text-center">
+          <Reveal className="max-w-2xl mx-auto mb-14">
+            <SectionKicker>06 · Contact</SectionKicker>
+            <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-semibold text-white tracking-tight">
+              Let's build something reliable.
+            </h2>
+            <p className="mt-4 text-slate-400 text-lg leading-relaxed">
+              Open to Applied AI / ML Engineer roles. Always glad to talk about
+              agent evaluation, voice AI, or why a metric might be lying to you.
+            </p>
+          </Reveal>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-4xl mx-auto">
+            {CONTACT_LINKS.map((c, i) => (
+              <Reveal key={c.label} delay={i * 80}>
+                <a
+                  href={c.href}
+                  target={c.href.startsWith('http') ? '_blank' : undefined}
+                  rel="noopener noreferrer"
+                  className="group flex flex-col items-center gap-3 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-6 hover:border-cyan-400/40 hover:bg-white/[0.04] transition-all h-full text-center"
+                >
+                  <div className="w-11 h-11 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-cyan-400/10 transition-colors shrink-0">
+                    <c.icon className="text-slate-300 group-hover:text-cyan-300 transition-colors" size={19} />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="text-white font-medium text-sm">{c.label}</h3>
+                    <p className="text-slate-500 text-[11px] font-mono mt-1 truncate max-w-[11rem]">{c.value}</p>
+                  </div>
+                </a>
+              </Reveal>
+            ))}
           </div>
+
+          <p className="mt-12 text-sm text-slate-500 flex items-center justify-center gap-1.5">
+            <MapPin size={14} /> Hyderabad, India
+          </p>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-center">
-          <p className="text-gray-400 mb-4">
-            © 2025 Hemanth Reddy Nalabolu. Built with React and Tailwind CSS.
-          </p>
-          <div className="flex justify-center space-x-4 text-sm">
-            <span className="text-gray-400">Interests:</span>
-            <span className="text-blue-400">Music</span>
-            <span className="text-gray-500">•</span>
-            <span className="text-indigo-400">Gaming</span>
-            <span className="text-gray-500">•</span>
-            <span className="text-purple-400">Watching Movies</span>
+      <footer className="border-t border-white/5 py-8 px-5 sm:px-8 relative z-10">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
+          <p>© {new Date().getFullYear()} Hemanth Reddy Nalabolu. Built with React &amp; Tailwind CSS.</p>
+          <div className="flex items-center gap-4">
+            <a href="https://github.com/HemanthReddy-1408" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-300 transition-colors flex items-center gap-1.5">
+              <Github size={15} /> GitHub
+            </a>
+            <a href="https://linkedin.com/in/hemanth-reddy-432237333/" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-300 transition-colors flex items-center gap-1.5">
+              <Linkedin size={15} /> LinkedIn
+            </a>
+            <a href="mailto:hemanth984849@gmail.com" className="hover:text-cyan-300 transition-colors flex items-center gap-1.5">
+              <Mail size={15} /> Email
+            </a>
           </div>
         </div>
       </footer>
