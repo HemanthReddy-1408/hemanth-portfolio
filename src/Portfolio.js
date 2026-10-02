@@ -47,7 +47,15 @@ const EXPERIENCE = {
       metric: '1,000+ interviews',
     },
     {
+      text: 'That same rewrite removed the real memory bottleneck — a 200–500MB Chrome process per interview — taking the same 16GB RAM VM from 4 concurrent interviews to 60, verified against measured per-interview memory rather than estimated.',
+      metric: '4 → 60 on 16GB',
+    },
+    {
       text: 'Built a full-duplex streaming voice pipeline (Deepgram STT, LLM inference, Cartesia TTS, LiveKit transport) minimizing end-to-end conversational latency through continuous streaming execution.',
+    },
+    {
+      text: 'Traced interview throughput’s real ceiling to our TTS vendor’s 5-concurrent-stream-per-key cap, not compute, and built a cross-process, Redis-backed key-pool — atomic leasing, TTL + heartbeat crash-safety, file-lock fallback — coordinating multiple keys across Kubernetes pods so it stopped being a limit.',
+      metric: 'TTS cap removed',
     },
     {
       text: 'Designed a dual-signal authenticity check for interview answers — one LLM pass reads speech disfluency and personal specificity, a second reads structural regularity across the whole session — with both prompts constrained to probabilistic, non-accusatory output rather than a binary verdict.',
