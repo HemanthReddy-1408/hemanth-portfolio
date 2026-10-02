@@ -74,6 +74,9 @@ const EXPERIENCE = {
       text: 'Built a sub-120ms in-process retrieval layer (Qdrant vectors + SQLite relational enrichment, parallel intent classification and embedding) for the telephony bot’s knowledge lookups, timed to stay hidden behind filler audio instead of creating dead air.',
     },
     {
+      text: 'Built that RAG corpus’s ingestion side too — a multi-strategy PDF pipeline (text extraction, page-rasterization fallback for scanned documents, vision-LLM parsing of embedded images) feeding LLM-assisted semantic chunking with deduplication, upserted into the vector store incrementally as new documents arrive rather than a full reindex.',
+    },
+    {
       text: 'Redesigned the telephony conversation orchestrator around an explicit turn-state machine after tracing production call failures to implicit state scattered across independent flags — closing a bug where an acknowledgment playing before an unfinished question caused fabricated accept verdicts.',
     },
   ],
