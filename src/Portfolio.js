@@ -29,8 +29,8 @@ const ROLE_STRINGS = [
 const HERO_STATS = [
   { value: '1,000+', label: 'production interviews powered' },
   { value: '2,500+', label: 'production calls handled' },
-  { value: '3', label: 'open-source research platforms' },
-  { value: '800+', label: 'tests shipped across projects' },
+  { value: '6', label: 'open-source research platforms' },
+  { value: '1,000+', label: 'tests shipped across projects' },
 ];
 
 const EXPERIENCE = {
@@ -50,11 +50,23 @@ const EXPERIENCE = {
       text: 'Built a full-duplex streaming voice pipeline (Deepgram STT, LLM inference, Cartesia TTS, LiveKit transport) minimizing end-to-end conversational latency through continuous streaming execution.',
     },
     {
-      text: 'Designed concurrent interview execution using process isolation, Redis-backed orchestration, and a queue-driven, memory-aware video analysis pipeline for production-scale deployments.',
+      text: 'Designed a dual-signal authenticity check for interview answers — one LLM pass reads speech disfluency and personal specificity, a second reads structural regularity across the whole session — with both prompts constrained to probabilistic, non-accusatory output rather than a binary verdict.',
     },
     {
-      text: 'Delivered an AI telephony platform with deterministic workflow orchestration and retrieval-augmented conversational intelligence.',
+      text: 'Built an adaptive difficulty engine that adjusts question difficulty from live performance signals in real time, backed by TF-IDF + sentence-transformer resume-to-job-description matching.',
+    },
+    {
+      text: 'Shipped a real-time interview proctoring service that joins calls as a headless Playwright participant, running InsightFace-based identity-swap, liveness, and multi-person detection with JWT-gated room access and an auto-recovering detector process.',
+    },
+    {
+      text: 'Delivered an AI telephony platform (Twilio voice, ElevenLabs conversational agents, Deepgram, Sarvam TTS) with deterministic workflow orchestration and retrieval-augmented conversational intelligence.',
       metric: '2,500+ calls',
+    },
+    {
+      text: 'Built a sub-120ms in-process retrieval layer (Qdrant vectors + SQLite relational enrichment, parallel intent classification and embedding) for the telephony bot’s knowledge lookups, timed to stay hidden behind filler audio instead of creating dead air.',
+    },
+    {
+      text: 'Redesigned the telephony conversation orchestrator around an explicit turn-state machine after tracing production call failures to implicit state scattered across independent flags — closing a bug where an acknowledgment playing before an unfinished question caused fabricated accept verdicts.',
     },
   ],
 };
@@ -66,7 +78,7 @@ const SKILLS = [
   },
   {
     category: 'AI / Machine Learning',
-    items: ['PyTorch', 'Transformers', 'Hugging Face', 'LangChain', 'LangGraph', 'RAG', 'Hybrid Retrieval (BM25 + Dense, RRF)', 'PEFT / LoRA / QLoRA'],
+    items: ['PyTorch', 'Transformers', 'Hugging Face', 'LangChain', 'LangGraph', 'RAG', 'Hybrid Retrieval (BM25 + Dense, RRF)', 'PEFT / LoRA / QLoRA', 'Sentence-Transformers', 'InsightFace'],
   },
   {
     category: 'AI Evaluation & Reliability',
@@ -78,15 +90,15 @@ const SKILLS = [
   },
   {
     category: 'Backend & Distributed Systems',
-    items: ['FastAPI', 'AsyncIO', 'WebSockets', 'Redis', 'Multiprocessing', 'RBAC'],
+    items: ['FastAPI', 'AsyncIO', 'WebSockets', 'Redis', 'Multiprocessing', 'RBAC', 'Playwright'],
   },
   {
     category: 'Real-Time Voice AI',
-    items: ['LiveKit', 'WebRTC', 'Deepgram', 'Cartesia', 'Streaming AI'],
+    items: ['LiveKit', 'WebRTC', 'Twilio', 'Deepgram', 'Cartesia', 'ElevenLabs', 'Sarvam TTS', 'Streaming AI'],
   },
   {
     category: 'Databases',
-    items: ['PostgreSQL (RLS)', 'MySQL', 'SQLite', 'MongoDB', 'SQLAlchemy', 'FAISS'],
+    items: ['PostgreSQL (RLS)', 'MySQL', 'SQLite', 'MongoDB', 'SQLAlchemy', 'FAISS', 'Qdrant'],
   },
   {
     category: 'Observability & MLOps',
@@ -163,6 +175,72 @@ const PROJECTS = [
     ],
     tech: ['Python', 'PyTorch', 'scikit-learn', 'Streamlit'],
     github: 'https://github.com/HemanthReddy-1408/Anomaly-Transformer',
+  },
+  {
+    id: 'forgellm',
+    name: 'ForgeLLM',
+    tagline: 'Adaptive LLM Training & Personalization Engine',
+    period: 'Oct 2026',
+    description:
+      'A from-scratch PyTorch system that specializes open-source language models for technical AI-engineering intelligence under constrained compute — and measures, rather than assumes, that the specialization helped.',
+    bullets: [
+      'Implemented LoRA, DoRA, rsLoRA, LoRA+, and QLoRA (NF4/int8 double-quantization with a recompute-on-backward dequant kernel) from scratch, alongside a Llama-style decoder (RoPE, GQA, KV cache) that runs unchanged on CUDA, Apple-silicon, and CPU.',
+      'Built a confidence-gated task router that sends skill-shaped requests to the right LoRA adapter and knowledge-shaped requests to BM25 + dense RRF retrieval, with a built-in study mode that quantifies when fine-tuning actually beats retrieval.',
+      'Engineered an evaluation harness across 8 capability suites (domain, reasoning, coding, tool-calling, structured output, safety) gated by a paired-bootstrap regression test before any adapter reaches the model registry.',
+    ],
+    quote:
+      'Fine-tune behavior and skills; retrieve knowledge that changes — the router sends a changing-facts question to retrieval and a schema-extraction task to a LoRA adapter that learned the skill.',
+    stats: [
+      { value: '80', label: 'tests' },
+      { value: '8', label: 'eval suites' },
+      { value: '6', label: 'task families' },
+    ],
+    tech: ['Python', 'PyTorch', 'LoRA / DoRA / QLoRA', 'FastAPI', 'BM25 + Dense RRF'],
+    github: 'https://github.com/HemanthReddy-1408/ForgeLLM',
+  },
+  {
+    id: 'visionforge',
+    name: 'VisionForge',
+    tagline: 'Multimodal Visual Intelligence Engine',
+    period: 'Oct 2026',
+    description:
+      'A from-scratch PyTorch system that turns an image into a validated, structured scene description — detection, segmentation, OCR, a spatial scene graph, visual Q&A, and retrieval — with no pipeline() calls and no pretrained weights.',
+    bullets: [
+      'Built every model from scratch — an FCOS detector, a Panoptic-FPN segmentation head, CRNN+CTC OCR, and a fusion transformer cross-attending visual/object/OCR/relation tokens for grounded VQA — reaching 0.969 mAP detection and 0.992 mIoU segmentation on a held-out split.',
+      'Designed a symbolic scene-graph validator that reconciles the neural VQA answer against perceived structure, catching failures like confidently answering a spatial question about a part that was never detected, lifting VQA accuracy to 0.979 with a 1.6% override rate.',
+      'Generated a procedural, fully-labeled synthetic benchmark — detection, segmentation, OCR, relations, and VQA all derived from one consistent scene — since no public dataset carries all five label types for a single image, and reported cross-modal retrieval as the honest weak point rather than omitting it.',
+    ],
+    quote:
+      'Two independently written implementations — the generator’s own ground truth and the scene-graph reasoner — agree on 100% of answerable questions across 250 held-out scenes.',
+    stats: [
+      { value: '0.969', label: 'mAP detection' },
+      { value: '0.973', label: 'VQA exact-match' },
+      { value: '30', label: 'tests' },
+    ],
+    tech: ['Python', 'PyTorch', 'FCOS', 'CRNN / CTC', 'PostgreSQL'],
+    github: 'https://github.com/HemanthReddy-1408/VisionForge',
+  },
+  {
+    id: 'atlas',
+    name: 'Atlas',
+    tagline: 'Agentic RAG & Temporal Knowledge Graph Engine',
+    period: 'Oct 2026',
+    description:
+      'Continuously builds a versioned knowledge base and temporal knowledge graph of the AI/technology ecosystem, then answers research questions through three agent architectures over the same retrieval stack — every claim checked against its evidence before it ships.',
+    bullets: [
+      'Built hybrid retrieval — BM25 + dense + graph multi-hop bridge scoring, weighted RRF, MMR — with Corrective RAG grading each chunk correct/ambiguous/incorrect and iterative retrieval that expands, relaxes filters, or walks the graph when evidence is insufficient.',
+      'Implemented three agent architectures over one retrieval stack: a deterministic pipeline, an autonomous Groq function-calling agent with self-reflection, and a multi-agent planner/researcher/critic/writer loop that resolves cross-source conflicts by authority and publication-vs-event date.',
+      'Engineered prompt-injection defense (hidden-text removal, pattern scanning with quarantine, output sanitization) and grounded-generation claim verification requiring every number, date, and name to literally appear in the cited evidence.',
+    ],
+    quote:
+      'The claim verifier caught a model citing a news article’s publication date as the product’s release date — the two were different, and only literal evidence-matching noticed.',
+    stats: [
+      { value: '127', label: 'tests' },
+      { value: '3', label: 'agent architectures' },
+      { value: 'RRF', label: 'hybrid retrieval fusion' },
+    ],
+    tech: ['Python', 'Groq', 'BM25 + Dense + Graph RAG', 'Streamlit'],
+    github: 'https://github.com/HemanthReddy-1408/ATLAS',
   },
 ];
 
