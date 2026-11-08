@@ -112,10 +112,6 @@ const SKILLS = [
     category: 'Databases',
     items: ['PostgreSQL (RLS)', 'MySQL', 'SQLite', 'MongoDB', 'SQLAlchemy', 'FAISS', 'Qdrant'],
   },
-  {
-    category: 'Observability & MLOps',
-    items: ['OpenTelemetry', 'MLflow', 'Prometheus', 'Grafana', 'Docker', 'GitHub Actions CI'],
-  },
 ];
 
 const PROJECTS = [
@@ -185,7 +181,7 @@ const PROJECTS = [
       { value: '300+', label: 'tests' },
       { value: '7', label: 'dependency contracts' },
     ],
-    tech: ['Python', 'FastAPI', 'PostgreSQL', 'MCP', 'MLflow', 'OpenTelemetry'],
+    tech: ['Python', 'FastAPI', 'PostgreSQL', 'MCP'],
     github: 'https://github.com/HemanthReddy-1408/Aegis',
   },
   {
