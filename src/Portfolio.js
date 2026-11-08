@@ -20,64 +20,65 @@ const NAV_SECTIONS = [
 ];
 
 const ROLE_STRINGS = [
-  'agentic AI infrastructure',
-  'evaluation & reliability engineering',
-  'real-time voice AI',
+  'agentic AI workflows',
+  'hybrid retrieval & evaluation',
+  'real-time voice AI agents',
   'statistically rigorous evaluation',
 ];
 
 const HERO_STATS = [
-  { value: '1,000+', label: 'production interviews powered' },
+  { value: '1,400+', label: 'production interviews powered' },
   { value: '2,500+', label: 'production calls handled' },
-  { value: '6', label: 'open-source research platforms' },
+  { value: '8', label: 'open-source projects' },
   { value: '1,000+', label: 'tests shipped across projects' },
 ];
 
 const EXPERIENCE = {
-  role: 'AI Engineer',
+  role: 'AI Engineer (Agentic Systems)',
   company: 'AIRA HR — NR Consulting',
   location: 'Hyderabad, India',
   period: 'August 2025 — Present',
   bullets: [
     {
-      text: 'Joined as an Intern and converted to full-time AI Engineer after 11 months; now own architecture for the company’s AI Interview and AI Telephony platforms.',
+      text: 'Joined as an Intern and converted to full-time AI Engineer after 11 months; now own the architecture of the company’s agentic products — an AI interviewer, a phone-screening voice agent, and a proctoring agent.',
     },
     {
-      text: 'Re-architected a Selenium-based browser media pipeline into native LiveKit, eliminating browser resource contention.',
-      metric: '1,000+ interviews',
+      text: 'Designed and built the LangGraph-based rebuild of the interview platform — lifecycle, per-turn and evaluation graphs over a deterministic control plane, with LLM interpretation kept separate from code-owned decisions (difficulty policy, seeded selection, dispatch). Live for about five weeks.',
+      metric: '1,400+ interviews',
     },
     {
-      text: 'That same rewrite removed the real memory bottleneck — a 200–500MB Chrome process per interview — taking the same 16GB RAM VM from 4 concurrent interviews to 60, verified against measured per-interview memory rather than estimated.',
-      metric: '4 → 60 on 16GB',
+      text: 'Gave the interview agent live adaptive behaviour: a four-dimension difficulty policy (abstraction depth, constraint pressure, ambiguity, scale) escalates or relaxes question pressure from rolling answer-confidence signals, with seeded deterministic selection so identical inputs replay the identical interview.',
     },
     {
-      text: 'Built a full-duplex streaming voice pipeline (Deepgram STT, LLM inference, Cartesia TTS, LiveKit transport) minimizing end-to-end conversational latency through continuous streaming execution.',
+      text: 'Put guardrails on LLM judgement: a non-accusatory, multi-signal answer-authenticity check — five deterministic features plus two LLM passes, the secondary pass capped at 25% influence, accusatory terms filtered from output — returning a probabilistic band, never a binary verdict.',
     },
     {
-      text: 'Traced interview throughput’s real ceiling to our TTS vendor’s 5-concurrent-stream-per-key cap, not compute, and built a cross-process, Redis-backed key-pool — atomic leasing, TTL + heartbeat crash-safety, file-lock fallback — coordinating multiple keys across Kubernetes pods so it stopped being a limit.',
-      metric: 'TTS cap removed',
+      text: 'Re-architected a Selenium-based browser pipeline into a native LiveKit client, eliminating a 200–500MB Chrome process per interview, and scaled the fleet to 60 concurrent interviews across 4 VMs (15 slots each) with a central dispatcher that defers VM provisioning until the candidate is actually in the room.',
+      metric: '60 concurrent',
     },
     {
-      text: 'Designed a dual-signal authenticity check for interview answers — one LLM pass reads speech disfluency and personal specificity, a second reads structural regularity across the whole session — with both prompts constrained to probabilistic, non-accusatory output rather than a binary verdict.',
+      text: 'Root-caused a fleet-wide incident that killed 46 live interviews — a discarded Redis no-op let slot leases expire, so the autoscaler stopped busy VMs — and shipped an independent process-table liveness check plus 12 regression tests.',
+      metric: '46-interview incident',
     },
     {
-      text: 'Built an adaptive difficulty engine that adjusts question difficulty from live performance signals in real time, backed by TF-IDF + sentence-transformer resume-to-job-description matching.',
+      text: 'Load-tested every vendor in the voice pipeline (STT, LLM, TTS, media transport) from 1 to 100 concurrent sessions to find the real ceilings — per-key vendor concurrency caps, not compute — then built a cross-process, Redis Lua-atomic API-key pool with crash-safe file-lock fallback.',
+      metric: 'key pool',
     },
     {
-      text: 'Shipped a real-time interview proctoring service that joins calls as a headless Playwright participant, running InsightFace-based identity-swap, liveness, and multi-person detection with JWT-gated room access and an auto-recovering detector process.',
+      text: 'Built a full-duplex streaming voice pipeline (Deepgram STT, LLM inference, Cartesia TTS, LiveKit transport) with barge-in that merges interrupted speech into the answer, and traced a duplicate audio consumer that doubled the STT clock and truncated candidate answers (80,194 duplicate frames) to a track-guarded single-consumer fix.',
     },
     {
-      text: 'Delivered an AI telephony platform (Twilio voice, ElevenLabs conversational agents, Deepgram, Sarvam TTS) with deterministic workflow orchestration and retrieval-augmented conversational intelligence.',
+      text: 'Delivered an AI telephony voice agent (voice stack with ElevenLabs conversational agents, Deepgram, Sarvam TTS) over one tool contract with two interchangeable backends, an LLM intent router (six query types into SQL and vector tools with a three-tier fallback), and a deliberate 2–5ms in-memory search on the live call path to stay hidden behind filler audio.',
       metric: '2,500+ calls',
     },
     {
-      text: 'Built a sub-120ms in-process retrieval layer (Qdrant vectors + SQLite relational enrichment, parallel intent classification and embedding) for the telephony bot’s knowledge lookups, timed to stay hidden behind filler audio instead of creating dead air.',
+      text: 'Built that agent’s knowledge ingestion too — a nine-stage PDF pipeline (text extraction, page-rasterization fallback for scanned documents, two-stage GPT-4o vision parsing) feeding LLM-assisted semantic chunking with deduplication, upserted incrementally rather than a full reindex.',
     },
     {
-      text: 'Built that RAG corpus’s ingestion side too — a multi-strategy PDF pipeline (text extraction, page-rasterization fallback for scanned documents, vision-LLM parsing of embedded images) feeding LLM-assisted semantic chunking with deduplication, upserted into the vector store incrementally as new documents arrive rather than a full reindex.',
+      text: 'Fixed agent turn-handling failures at the root: replaced about six independently desynced heuristics for “what was actually delivered” with a delivery ledger after a cut-off acknowledgment was treated as a fully delivered question and produced a false accept verdict; built an AI-vs-AI conversation simulator that exercises the phone-screening agent end-to-end without real calls.',
     },
     {
-      text: 'Redesigned the telephony conversation orchestrator around an explicit turn-state machine after tracing production call failures to implicit state scattered across independent flags — closing a bug where an acknowledgment playing before an unfinished question caused fabricated accept verdicts.',
+      text: 'Shipped a real-time proctoring agent that joins calls as a headless Playwright participant, running InsightFace identity-swap, FFT-based screen-replay liveness and multi-person detection with head-pose-aware abstention and a self-healing supervisor.',
     },
   ],
 };
@@ -89,7 +90,7 @@ const SKILLS = [
   },
   {
     category: 'AI / Machine Learning',
-    items: ['PyTorch', 'Transformers', 'Hugging Face', 'LangChain', 'LangGraph', 'RAG', 'Hybrid Retrieval (BM25 + Dense, RRF)', 'PEFT / LoRA / QLoRA', 'Sentence-Transformers', 'InsightFace'],
+    items: ['PyTorch', 'Transformers', 'Hugging Face', 'LangGraph', 'RAG', 'Hybrid Retrieval (BM25 + Dense, RRF)', 'Reranking (Cross-Encoder, Late Interaction)', 'FAISS (HNSW / IVF / PQ)', 'PEFT / LoRA / QLoRA', 'Sentence-Transformers', 'InsightFace'],
   },
   {
     category: 'AI Evaluation & Reliability',
@@ -97,7 +98,7 @@ const SKILLS = [
   },
   {
     category: 'Agent Infrastructure',
-    items: ['Model Context Protocol (MCP)', 'Tool Governance & Policy Engines', 'Agent Runtimes', 'Trajectory Capture', 'Replay & Counterfactual Analysis'],
+    items: ['Model Context Protocol (MCP)', 'Tool Calling & Tool Governance', 'Human-in-the-Loop Approvals', 'Prompt-Injection Defense', 'Agent Runtimes', 'Trajectory Capture', 'Replay & Counterfactual Analysis'],
   },
   {
     category: 'Backend & Distributed Systems',
@@ -119,6 +120,52 @@ const SKILLS = [
 
 const PROJECTS = [
   {
+    id: 'faultline',
+    name: 'Faultline',
+    tagline: 'Agentic Incident Investigation That Refuses to Guess',
+    period: 'Nov 2026',
+    description:
+      'A LangGraph agent that investigates CI/CD failures: it classifies the failure, searches runbooks, past incidents and real GitHub issues, inspects changes through read-only tools, and writes a report that separates confirmed facts, evidence-backed hypotheses, missing evidence and alternatives — with every consequential action held for a human approver.',
+    bullets: [
+      'Built a 12-step investigation graph with a deterministic core: hybrid BM25 + dense retrieval, read-only tools exposed over MCP, a bounded widen-and-retry loop, and an independent verifier that re-resolves every citation against its source and drops any claim it cannot ground.',
+      'Evaluated on a labelled-synthetic benchmark of 240 scenarios with held-out phrasings and baselines: 0.87 root-cause top-1 (95% CI 0.81–0.91; 0.84 on held-out phrasing) versus 0.37–0.44 for regex and nearest-incident baselines, with 100% abstention when evidence was insufficient and no confidently-wrong diagnoses.',
+      'Hardened against prompt injection planted in logs, commits and diffs — 18 of 18 flagged and quarantined, no hijacked actions — with delimited prompts, digest-bound approvals, role-based access and an audited FastAPI service.',
+      'Reported its own limits: the data is synthetic, 13% of diagnosable cases were wrongly abstained, calibration is imperfect (ECE 0.16), and the LLM mode is unit-tested but not benchmarked live.',
+    ],
+    quote:
+      'Cutting the agent’s access to the deployment diff dropped root-cause accuracy from 0.87 to 0.44 — on this benchmark, evidence access carried the diagnosis, not model cleverness.',
+    stats: [
+      { value: '0.87', label: 'root-cause top-1 (synthetic)' },
+      { value: '0', label: 'confident-wrong diagnoses' },
+      { value: '47', label: 'tests' },
+    ],
+    tech: ['Python', 'LangGraph', 'MCP', 'FastAPI', 'Hybrid Retrieval', 'SQLite'],
+    github: 'https://github.com/HemanthReddy-1408/Faultline',
+  },
+  {
+    id: 'retrievallab',
+    name: 'RetrievalLab',
+    tagline: 'Retrieval Architecture Benchmarking & Diagnostics',
+    period: 'Nov 2026',
+    description:
+      'A workbench for choosing retrieval architectures with evidence: compares sparse, dense (Flat, HNSW, IVF, PQ, IVF-PQ), hybrid (RRF, score fusion) and reranked pipelines on BEIR SciFact and NFCorpus, with quality, latency, index size, significance tests and query-level diagnostics.',
+    bullets: [
+      'Implemented BM25 from scratch with per-term score attribution — its NDCG@10 of 0.665 on SciFact reproduces the published BEIR baseline — alongside FAISS index families, three fusion methods, a cross-encoder and a ColBERT-style late-interaction reranker.',
+      'Reports every comparison with a paired-bootstrap confidence interval, p50/p95 latency, serialized index size and ANN overlap against exact search, so index loss is separated from model quality.',
+      'Built query-level diagnostics: BM25 term contributions, dense similarity and exact rank, RRF arithmetic per source, rank movement between pipelines, and a classifier that says which stage lost each relevant document.',
+      'Measured the trade-offs: HNSW matched exact search (0.999 overlap), product quantization cut the index 13× for −0.021 NDCG@10, and a cross-encoder added about 700 ms for no significant gain on SciFact.',
+    ],
+    quote:
+      'Late-interaction reranking gained +0.053 NDCG@10 for about +12 ms — but only because document vectors are precomputed offline, and that storage is not in the index-size column. The caveats ship with the numbers.',
+    stats: [
+      { value: '0.665', label: 'BM25 NDCG@10 (= BEIR)' },
+      { value: '13×', label: 'smaller PQ index' },
+      { value: '21', label: 'tests' },
+    ],
+    tech: ['Python', 'FAISS', 'PyTorch', 'FastAPI', 'BM25 + Dense + Rerank'],
+    github: 'https://github.com/HemanthReddy-1408/RetrievalLab',
+  },
+  {
     id: 'aegis',
     name: 'Aegis',
     tagline: 'Agent Reliability & Evaluation Platform',
@@ -126,7 +173,7 @@ const PROJECTS = [
     description:
       'An open-source reliability laboratory for agentic AI: runs versioned agents against reproducible datasets, captures complete tool/MCP/RAG trajectories, and answers where an agent fails, why, and whether a change actually made it better or worse.',
     bullets: [
-      'Engineered an agent runtime where the runtime — not the LLM — owns control flow: a pure, property-tested state machine, budgets enforced before every model call, and a policy gate authorizing each proposed action.',
+      'Engineered an agent runtime where the runtime — not the LLM — owns control flow: a pure state machine tested by exhaustive state × event enumeration, budgets enforced before every model call, and a policy gate authorizing each proposed action.',
       'Built an MCP gateway as sole egress to untrusted tool servers, with operator-assigned risk classification and deny-by-default policy.',
       'Implemented statistically rigorous evaluation — McNemar for paired outcomes, Benjamini–Hochberg FDR correction, Wilson intervals — yielding pass/fail/inconclusive verdicts instead of noise-sensitive point estimates.',
       'Discovered and fixed a silent multi-tenant bypass in which Postgres superuser roles ignore row-level security entirely, adding a runtime guard that refuses to start on an RLS-exempt role.',
@@ -147,7 +194,7 @@ const PROJECTS = [
     tagline: 'Serving-Time Admission Control for Clinical Answers',
     period: 'Jul 2025 — Sep 2026',
     description:
-      'A multi-agent clinical assistant paired with an in-band release gate that decides, per request and before any token is shown, whether an answer may reach the user — with no gold labels and no second chance, unlike an offline evaluation harness.',
+      'A clinical QA system built around an in-band release gate that decides, per request and before any token is shown, whether an answer may reach the user — with no gold labels and no second chance, unlike an offline evaluation harness.',
     bullets: [
       'Designed a six-check verification cascade ordered cheapest-first, so an answer removed by check two never reaches the expensive checks behind it.',
       'Implemented patient-relational safety checking that no groundedness or faithfulness metric can express — correctness held between the answer and the patient’s own medication record.',
@@ -172,7 +219,7 @@ const PROJECTS = [
     description:
       'Reverse-engineered Xu et al.’s ICLR 2022 Anomaly Transformer from a buggy single-file prototype into a correctness-audited reimplementation — a multi-layer encoder, a minimax training objective, and an evaluation layer that questions its own numbers.',
     bullets: [
-      'Found and fixed 7 correctness bugs in the reference math and data pipeline, including a non-log-space KL divergence and an autograd-detaching loss reduction.',
+      'Found and fixed 10 correctness bugs — 7 in the reference math and data pipeline and 3 more caught by the rewrite’s own tests — including a non-log-space KL divergence and an autograd-detaching loss reduction.',
       'Built point-adjusted and PA%K-swept F1, ROC/PR-AUC, and moving-block bootstrap confidence intervals — three threshold strategies reported side by side instead of one flattering number.',
       'Benchmarked against LSTM and vanilla Transformer autoencoders and three classical detectors across all 28 Server Machine Dataset machines with multi-seed ablations.',
       'Reported an honest negative finding — a plain Transformer autoencoder of matched depth outperformed the paper’s own association-discrepancy mechanism at reduced training scale — rather than only results favorable to the model.',
@@ -182,7 +229,7 @@ const PROJECTS = [
     stats: [
       { value: '68', label: 'tests' },
       { value: '28', label: 'machines benchmarked' },
-      { value: '7', label: 'bugs fixed' },
+      { value: '10', label: 'bugs fixed' },
     ],
     tech: ['Python', 'PyTorch', 'scikit-learn', 'Streamlit'],
     github: 'https://github.com/HemanthReddy-1408/Anomaly-Transformer',
@@ -558,7 +605,7 @@ const Portfolio = () => {
         <div className="max-w-6xl mx-auto w-full relative z-10">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-4 py-1.5 mb-8 font-mono text-xs text-slate-400">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Open to Applied AI / ML Engineer roles
+            Open to AI / Agentic AI Engineer roles
           </div>
 
           <h1 className="font-display text-4xl sm:text-6xl md:text-7xl font-semibold text-white tracking-tight leading-[1.05]">
@@ -576,10 +623,10 @@ const Portfolio = () => {
           </div>
 
           <p className="mt-6 max-w-2xl text-slate-400 text-base sm:text-lg leading-relaxed">
-            Applied AI Systems Engineer building production voice-AI and interview
-            platforms in industry, and an open-source reliability lab in the
-            open — turning statistical measurement rigor into shipped engineering
-            decisions rather than a single flattering number.
+            Agentic AI Engineer building LLM agents, voice-AI and interview
+            platforms in industry, and evaluation-first retrieval and agent
+            systems in the open — turning statistical measurement rigor into
+            shipped engineering decisions rather than a single flattering number.
           </p>
 
           <div className="mt-9 flex flex-wrap gap-4">
@@ -632,11 +679,12 @@ const Portfolio = () => {
               <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-8 h-full">
                 <TerminalSquare className="text-cyan-400 mb-5" size={26} />
                 <p className="text-slate-300 text-lg leading-relaxed">
-                  I specialize in agentic AI infrastructure, evaluation, and
-                  reliability engineering — architecting production platforms for
-                  real-time interview orchestration and intelligent telephony,
-                  and building an open-source reliability laboratory that treats
-                  agent evaluation as a statistics problem, not a vibe check.
+                  I build agentic AI systems and the engineering around them —
+                  LangGraph workflows, tool-using voice agents, hybrid retrieval,
+                  guardrails and human-gated actions — in production platforms for
+                  real-time interviewing and intelligent telephony, and in open
+                  projects that treat agent and retrieval evaluation as a
+                  statistics problem, not a vibe check.
                 </p>
                 <p className="mt-5 text-slate-400 leading-relaxed">
                   That means the same instincts apply whether I'm cutting
@@ -653,11 +701,11 @@ const Portfolio = () => {
               {[
                 {
                   title: 'Production systems',
-                  body: 'Low-latency voice AI, concurrent and distributed backend design, and layered architecture with enforced dependency contracts.',
+                  body: 'Tool-using voice and interview agents, concurrent and distributed backend design, and fault-tolerant dispatch with leases and fencing.',
                 },
                 {
                   title: 'Reliability research',
-                  body: 'Statistical regression testing, MCP tool governance, adversarial red-teaming, and turning measurement rigor into engineering decisions.',
+                  body: 'Retrieval benchmarking, statistical regression testing, MCP tool governance, adversarial red-teaming, and turning measurement rigor into engineering decisions.',
                 },
                 {
                   title: 'Outside of work',
@@ -871,7 +919,7 @@ const Portfolio = () => {
               Let's build something reliable.
             </h2>
             <p className="mt-4 text-slate-400 text-lg leading-relaxed">
-              Open to Applied AI / ML Engineer roles. Always glad to talk about
+              Open to AI / Agentic AI Engineer roles. Always glad to talk about
               agent evaluation, voice AI, or why a metric might be lying to you.
             </p>
           </Reveal>
