@@ -78,7 +78,7 @@ const EXPERIENCE = {
       text: 'Fixed agent turn-handling failures at the root: replaced about six independently desynced heuristics for “what was actually delivered” with a delivery ledger after a cut-off acknowledgment was treated as a fully delivered question and produced a false accept verdict; built an AI-vs-AI conversation simulator that exercises the phone-screening agent end-to-end without real calls.',
     },
     {
-      text: 'Shipped a real-time proctoring agent that joins calls as a headless Playwright participant, running InsightFace identity-swap, FFT-based screen-replay liveness and multi-person detection with head-pose-aware abstention and a self-healing supervisor.',
+      text: 'Shipped a real-time proctoring agent that joins calls as a headless browser participant, running InsightFace identity-swap, FFT-based screen-replay liveness and multi-person detection with head-pose-aware abstention and a self-healing supervisor.',
     },
   ],
 };
@@ -102,7 +102,7 @@ const SKILLS = [
   },
   {
     category: 'Backend & Distributed Systems',
-    items: ['FastAPI', 'AsyncIO', 'WebSockets', 'Redis', 'Multiprocessing', 'RBAC', 'Playwright'],
+    items: ['FastAPI', 'AsyncIO', 'WebSockets', 'Redis', 'Multiprocessing', 'RBAC'],
   },
   {
     category: 'Real-Time Voice AI',
